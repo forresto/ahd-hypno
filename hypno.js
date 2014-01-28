@@ -140,7 +140,8 @@ var backgroundPattern = function(){
   //circle
   var x = canvas.width / 2;
   var y = canvas.height / 2;
-  var radius = canvas.height/2.7 + 10;
+
+  var radius = canvas.height/2.7;
   var startAngle = 0;
   var endAngle = 2 * Math.PI;
   var counterClockwise = false;
@@ -151,31 +152,40 @@ var backgroundPattern = function(){
   cc.stroke();
 
   //draw rays
-  var increment = Math.PI*2 / 80;
+  var increment = Math.PI*2 / 24;//84
   var length = canvas.width;
-  var x = canvas.width / 2;
-  var y = canvas.height / 2;
 
+  base = Math.floor(videoInput.currentTime%100);
+
+  cc.save();
+  cc.translate(x,y);
+  cc.rotate(base);
+  var colors = ['orange','green'];
+  var colIndex=0;
   for(var angle = 0; angle < Math.PI*2; angle+=increment){
     cc.beginPath();
-    cc.moveTo(x,y);
-    cc.lineTo(x+length*Math.cos(angle), y+length*Math.sin(angle));
-    cc.strokeStyle = 'white';
-    cc.lineWidth = 15;
+    cc.fillStyle= colors[colIndex];
+    colIndex++;colIndex%=colors.length;
+    cc.lineWidth = 10;
+    cc.moveTo(0,0);
+    cc.lineTo(length*Math.cos(angle), length*Math.sin(angle));
+    cc.lineTo(length*Math.cos(angle+increment), length*Math.sin(angle+increment));
     cc.closePath();
-    cc.stroke();
+    cc.fill();
   }
+  cc.restore();
 }
+
+var base;
 
 function drawLoop() {
 
   requestAnimationFrame(drawLoop);
 
+  cc.clearRect(0, 0, canvasInput.width, canvasInput.height);
   backgroundPattern();
-
   clippingCircle();
   cc.drawImage(videoInput, 0, 0, canvas.width, canvas.height);
-  // cc.clearRect(0, 0, canvasInput.width, canvasInput.height);
   // Fade out
   cc.fillStyle = "rgba(0,0,0,0.1)";
   cc.fillRect(0, 0, width, height);
