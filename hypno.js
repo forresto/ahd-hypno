@@ -1,8 +1,16 @@
-var videoInput = document.getElementById('video');
-var canvasInput = document.getElementById('canvas');
-var cc = canvasInput.getContext('2d');
-var width = canvasInput.width;
-var height = canvasInput.height;
+var width = 640;
+var height = 480;
+
+// Will connect to cam
+var videoInput = document.createElement('video');
+videoInput.width = width;
+videoInput.height = height;
+var canvasOutput = document.getElementById('canvas');
+var cc = canvasOutput.getContext('2d');
+
+// Mirror output
+cc.translate(width, 0);
+cc.scale(-1, 1);
 
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
@@ -10,7 +18,7 @@ window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
 // check for camerasupport
 if (navigator.getUserMedia) {
   // set up stream
-  
+
   // chrome 19 shim
   var videoSelector = {video : true};
   if (window.navigator.appVersion.match(/Chrome\/(.*?) /)) {
@@ -19,7 +27,7 @@ if (navigator.getUserMedia) {
       videoSelector = "video";
     }
   };
-  
+
   navigator.getUserMedia(videoSelector, function( stream ) {
     if (videoInput.mozCaptureStream) {
       videoInput.mozSrcObject = stream;
@@ -39,6 +47,7 @@ if (navigator.getUserMedia) {
 var ctracker = new clm.tracker();
 ctracker.init(pModel);
 ctracker.start(videoInput);
+// ctracker.start(canvasInput);
 
 
 
@@ -62,12 +71,13 @@ var paths = [
 var hypnoFace = function (cc, points) {
   cc.fillStyle = "rgb(200,200,200)";
   cc.strokeStyle = "rgb(130,255,50)";
-  //cc.lineWidth = 1;
-  
+
   for (var i = 0; i < paths.length; i++) {
     if (typeof(paths[i]) == 'number') {
+      cc.strokeStyle = "hsl("+Math.random()*360+",100%,50%)";
       drawPoint(cc, paths[i], points);
     } else {
+      cc.strokeStyle = "hsl(120,100%,50%)";
       drawPath(cc, paths[i], points);
     }
   }
@@ -87,7 +97,7 @@ var drawPath = function(canvasContext, path, points) {
 
     x = point[0];
     y = point[1];
-    
+
     if (i == 0) {
       canvasContext.moveTo(x,y);
     } else {
@@ -97,7 +107,6 @@ var drawPath = function(canvasContext, path, points) {
   canvasContext.moveTo(0,0);
   canvasContext.closePath();
 
-  cc.strokeStyle = "hsl("+Math.random()*360+",100%,50%)";
   canvasContext.stroke();
 }
 
@@ -121,24 +130,74 @@ function drawPoint(canvasContext, point, points) {
 
 
 
+var clippingCircle = function(){
+  var x = canvas.width / 2;
+  var y = canvas.height / 2;
+  var radius = canvas.height/2.7;
+  var startAngle = 0;
+  var endAngle = 2 * Math.PI;
+  var counterClockwise = false;
+  cc.beginPath();
+  cc.arc(x, y, radius, startAngle, endAngle, counterClockwise);
+  cc.lineWidth = 50;
+  cc.clip();
+}
+
+var backgroundPattern = function(){
+  //circle
+  var x = canvas.width / 2;
+  var y = canvas.height / 2;
+  var radius = canvas.height/2.7 + 10;
+  var startAngle = 0;
+  var endAngle = 2 * Math.PI;
+  var counterClockwise = false;
+  cc.beginPath();
+  cc.arc(x, y, radius, startAngle, endAngle, counterClockwise);
+  cc.lineWidth = 20;
+  cc.strokeStyle = "white";
+  cc.stroke();
+
+  //draw rays
+  var increment = Math.PI*2 / 80;
+  var length = canvas.width;
+  var x = canvas.width / 2;
+  var y = canvas.height / 2;
+
+  for(var angle = 0; angle < Math.PI*2; angle+=increment){
+    cc.beginPath();
+    cc.moveTo(x,y);
+    cc.lineTo(x+length*Math.cos(angle), y+length*Math.sin(angle));
+    cc.strokeStyle = 'white';
+    cc.lineWidth = 15;
+    cc.closePath();
+    cc.stroke();
+  }
+}
+
+// Keep track between frames
+var lastVidTime = 0;
+var points = [];
+
 function drawLoop() {
+
   requestAnimationFrame(drawLoop);
 
-  // Feedback
-  // cc.translate(0, -1);
-  // cc.drawImage(canvasInput, 0, 0);
-  // cc.translate(0, 1);
-  
-  // Fade out
-  cc.fillStyle = "rgba(0,0,0,0.01)";
-  cc.fillRect(0, 0, width, height);
+  // Background burst
+  backgroundPattern();
 
-  var points = ctracker.getCurrentPosition();
+  // Draw mirrored canvas to main canvas
+  clippingCircle();
+  cc.drawImage(videoInput, 0, 0, width, height);
+
+  // Fade out
+  // cc.fillStyle = "rgba(0,0,0,0.01)";
+  // cc.fillRect(0, 0, width, height);
+
+  points = ctracker.getCurrentPosition();
 
   cc.strokeStyle = "hsl(60,100%,50%)";
+  cc.lineWidth = 1;
   hypnoFace(cc, points);
-
-  // ctracker.draw(canvasInput);
 
 }
 drawLoop();
