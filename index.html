@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>art hack day afterglow @whichlight @forresto</title>
+    <meta charset="utf-8">
+    <style>
+      body {
+        margin: 0;
+        background-color: black;
+      }
+      #container {
+        position : absolute;
+        top: 0;
+        left: calc(50% - 320px);
+      }
+      #video,
+      #canvas {
+        position : absolute;
+        left : 0;
+        top : 0;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="./bower_components/clmtrackr/js/utils.js"></script>
+    <script src="./bower_components/clmtrackr/js/clmtrackr.js"></script>
+    <script src="./bower_components/clmtrackr/models/model_pca_20_svm.js"></script>
+    <div id="content">
+
+      <div id="container">
+        <video id="video" width="640" height="480" autoplay loop>
+        </video>
+        <canvas id="canvas" width="640" height="480"></canvas>
+      </div>
+
+      <script src="./hypno.js"></script>
+    </div>
+  </body>
+</html>
