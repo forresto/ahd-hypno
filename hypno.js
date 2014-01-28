@@ -136,7 +136,7 @@ var clippingCircle = function(){
   cc.clip();
 }
 
-var backgroundPattern = function(){
+var backgroundPattern = function(colors){
   //circle
   var x = canvas.width / 2;
   var y = canvas.height / 2;
@@ -156,11 +156,9 @@ var backgroundPattern = function(){
   var length = canvas.width;
 
   base = Math.floor(videoInput.currentTime%100);
-
   cc.save();
   cc.translate(x,y);
   cc.rotate(base);
-  var colors = ['orange','green'];
   var colIndex=0;
   for(var angle = 0; angle < Math.PI*2; angle+=increment){
     cc.beginPath();
@@ -183,7 +181,7 @@ function drawLoop() {
   requestAnimationFrame(drawLoop);
 
   cc.clearRect(0, 0, canvasInput.width, canvasInput.height);
-  backgroundPattern();
+  backgroundPattern(['yellow','magenta']);
   clippingCircle();
   cc.drawImage(videoInput, 0, 0, canvas.width, canvas.height);
   // Fade out
