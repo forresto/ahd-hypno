@@ -123,9 +123,14 @@ function drawPoint(canvasContext, point, points) {
 
 function drawLoop() {
   requestAnimationFrame(drawLoop);
-  // cc.clearRect(0, 0, canvasInput.width, canvasInput.height);
+
+  // Feedback
+  // cc.translate(0, -1);
+  // cc.drawImage(canvasInput, 0, 0);
+  // cc.translate(0, 1);
+  
   // Fade out
-  cc.fillStyle = "rgba(0,0,0,0.1)";
+  cc.fillStyle = "rgba(0,0,0,0.01)";
   cc.fillRect(0, 0, width, height);
 
   var points = ctracker.getCurrentPosition();
