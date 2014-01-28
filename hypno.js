@@ -1,10 +1,16 @@
+var width = 640;
+var height = 480;
+
+// Will connect to cam
 var videoInput = document.createElement('video');
-videoInput.height=480;
-videoInput.width=640;
-var canvasInput = document.getElementById('canvas');
-var cc = canvasInput.getContext('2d');
-var width = canvasInput.width;
-var height = canvasInput.height;
+videoInput.width = width;
+videoInput.height = height;
+var canvasOutput = document.getElementById('canvas');
+var cc = canvasOutput.getContext('2d');
+
+// Mirror output
+cc.translate(width, 0);
+cc.scale(-1, 1);
 
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
@@ -41,6 +47,7 @@ if (navigator.getUserMedia) {
 var ctracker = new clm.tracker();
 ctracker.init(pModel);
 ctracker.start(videoInput);
+// ctracker.start(canvasInput);
 
 
 
@@ -64,12 +71,13 @@ var paths = [
 var hypnoFace = function (cc, points) {
   cc.fillStyle = "rgb(200,200,200)";
   cc.strokeStyle = "rgb(130,255,50)";
-  //cc.lineWidth = 1;
 
   for (var i = 0; i < paths.length; i++) {
     if (typeof(paths[i]) == 'number') {
+      cc.strokeStyle = "hsl("+Math.random()*360+",100%,50%)";
       drawPoint(cc, paths[i], points);
     } else {
+      cc.strokeStyle = "hsl(120,100%,50%)";
       drawPath(cc, paths[i], points);
     }
   }
@@ -99,7 +107,6 @@ var drawPath = function(canvasContext, path, points) {
   canvasContext.moveTo(0,0);
   canvasContext.closePath();
 
-  cc.strokeStyle = "hsl("+Math.random()*360+",100%,50%)";
   canvasContext.stroke();
 }
 
@@ -175,21 +182,29 @@ var backgroundPattern = function(colors){
 }
 
 var base;
+// Keep track between frames
+var lastVidTime = 0;
+var points = [];
 
 function drawLoop() {
 
   requestAnimationFrame(drawLoop);
 
-  cc.clearRect(0, 0, canvasInput.width, canvasInput.height);
+  // Background burst
   backgroundPattern(['yellow','magenta']);
+
+  // Draw mirrored canvas to main canvas
   clippingCircle();
-  cc.drawImage(videoInput, 0, 0, canvas.width, canvas.height);
+  cc.drawImage(videoInput, 0, 0, width, height);
+
   // Fade out
-  cc.fillStyle = "rgba(0,0,0,0.1)";
-  cc.fillRect(0, 0, width, height);
-  var points = ctracker.getCurrentPosition();
+  // cc.fillStyle = "rgba(0,0,0,0.01)";
+  // cc.fillRect(0, 0, width, height);
+
+  points = ctracker.getCurrentPosition();
 
   cc.strokeStyle = "hsl(60,100%,50%)";
+  cc.lineWidth = 1;
   hypnoFace(cc, points);
 
 }
