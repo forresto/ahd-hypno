@@ -3,6 +3,7 @@ var height = 480;
 
 
 var eyes= [];
+var images = [];
 
 // Will connect to cam
 var videoInput = document.createElement('video');
@@ -228,15 +229,33 @@ function drawLoop() {
   // cc.fillRect(0, 0, width, height);
 
   points = ctracker.getCurrentPosition();
-
   cc.strokeStyle = "hsl(60,100%,50%)";
   cc.lineWidth = 1;
   hypnoFace(cc, points);
 
+  //crazy eye patterns
   for(var i in eyes){
     eyes[i].draw();
     eyes[i].update();
   }
 
+
 }
 drawLoop();
+
+var img;
+
+//save frame if above score
+setInterval(function(){
+  if(ctracker.getScore()>0.50){
+    img = new Image();
+    img.src = canvas.toDataURL();
+    img.style.width="20%";
+    $('body').append(img);
+    var $imgs = $('img');
+    var lastImage = $imgs[$imgs.length-1];
+    if($(lastImage).offset()['top']>$(window).height()){
+      $('img')[0].remove();
+    }
+  }
+},1000);
