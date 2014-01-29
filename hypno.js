@@ -258,20 +258,10 @@ var backgroundPattern = function(cc, colors, rotation){
   var x = canvas.width / 2;
   var y = canvas.height / 2;
 
-  if(points[33]){
+  if(points && points[33]){
    x = points[33][0];
    y = points[33][1];
   }
-
-  var radius = canvas.height/2.7;
-  var startAngle = 0;
-  var endAngle = 2 * Math.PI;
-  var counterClockwise = false;
-  cc.beginPath();
-  cc.arc(x, y, radius, startAngle, endAngle, counterClockwise);
-  cc.lineWidth = 20;
-  cc.strokeStyle = "white";
-  cc.stroke();
 
   //draw rays
   var increment = Math.PI*2 / 24;//84
@@ -304,6 +294,7 @@ var points = [];
 
 function drawLoop() {
   requestAnimationFrame(drawLoop);
+  cc.clearRect(0, 0, width, height);
 
   // Time since video started
   vidTime = videoInput.currentTime;
@@ -312,7 +303,6 @@ function drawLoop() {
   points = ctracker.getCurrentPosition();
   if (!points) {
     // No faces detected
-    cc.clearRect(0, 0, width, height);
     colorShift = Math.random() * 360;
     return;
   }
