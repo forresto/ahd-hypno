@@ -112,7 +112,7 @@ var paths = [
   [44, 56, 57, 58, 50, 51, 52, 53, 54, 55, 44] // bottom lip
 ];
 
-var hypnoFace = function (cc, points) {
+var hypnoFace = function (cc, points, color) {
   cc.fillStyle = "rgb(200,200,200)";
   cc.strokeStyle = "rgb(130,255,50)";
 
@@ -122,7 +122,7 @@ var hypnoFace = function (cc, points) {
       drawPoint(cc, paths[i], points);
     } else {
       cc.lineWidth = 2;
-      cc.strokeStyle = "hsl(120,0%,100%)";
+      cc.strokeStyle = color;
       drawPath(cc, paths[i], points);
     }
   }
@@ -331,9 +331,8 @@ function drawLoop() {
   clipFace(points);
 
   // Draw face lines
-  cc.strokeStyle = "hsl(60,100%,50%)";
-  cc.lineWidth = 2;
-  hypnoFace(cc, points);
+  var lineColor = "hsl("+color+",100%, 90%)";
+  hypnoFace(cc, points, lineColor);
 
   //crazy eye patterns
   for(var i in eyes){
