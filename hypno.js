@@ -138,23 +138,24 @@ function drawPoint(canvasContext, point, points) {
   canvasContext.stroke();
 
   if(videoInput.currentTime%1<0.1){
-    eyes.push(new Eye(x,y,2));
+    eyes.push(new Eye(point,2));
   }
 }
 
-function Eye(x,y,size)  {
+function Eye(pointIndex,size)  {
     this.size=2;
-    this.x=x;
-    this.y=y;
+    this.index=pointIndex;
     this.c = Math.random()*360;
     this.death = 15;
     this.draw = function(){
+        if(points){
         cc.beginPath();
-        cc.arc(this.x, this.y, this.size, 0, Math.PI*2, true);
+        cc.arc(points[this.index][0], points[this.index][1], this.size, 0, Math.PI*2, true);
         cc.lineWidth=3;
         cc.strokeStyle="hsla("+this.c+",100%,50%,"+ (0.2+(this.death-this.size)/this.death)+")";
         cc.closePath();
         cc.stroke();
+        }
     }
     this.update = function(){
       this.size+=0.3;
@@ -237,7 +238,6 @@ var backgroundPattern = function(cc, colors, rotation){
   cc.restore();
 }
 
-<<<<<<< HEAD
 
 // Keep track between frames
 var vidTime = 0;
