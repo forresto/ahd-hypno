@@ -165,13 +165,22 @@ function Eye(x,y,size)  {
     }
 }
 
+var measure = function (v1, v2) {
+    var dx = v2[0] - v1[0];
+    var dy = v2[1] - v1[1];
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
 var clipFace = function(points){
   clipCanvasContext.save();
   clipCanvasContext.clearRect(0,0,width,height);
-  var path = paths[0];
 
   clipCanvasContext.beginPath();
-  for (var p = 0; p < path.length; p++) {
+  // Chin
+  var x, y;
+  var path = paths[0];
+  var pathLen = path.length;
+  for (var p = 0; p < pathLen; p++) {
     var point = points[ path[p] ];
     if (!point) {
       return;
@@ -184,8 +193,24 @@ var clipFace = function(points){
       clipCanvasContext.lineTo(x,y);
     }
   }
+  // Top of head
+  var dist = measure(points[0], points[14]);
+  var unitX = (points[14][0] - points[0][0]) / dist;
+  var unitY = (points[14][1] - points[0][1]) / dist;
+  var normX = unitY;
+  var normY = 0-unitX;
+
+  x = points[0][0] + (unitX * dist/2) + (normX * dist * 0.2);
+  y = points[0][1] + (unitY * dist/2) + (normY * dist * 0.2);
+  // var c1x = points[0][0] + (normX * dist * 0.25);
+  // var c1y = points[0][1] + (normY * dist * 0.25);
+  // var c2x = points[14][0] + (normX * dist * 0.25);
+  // var c2y = points[14][1] + (normY * dist * 0.25);
+  clipCanvasContext.arc(x, y, dist/2, 0, Math.PI, true);
+  // clipCanvasContext.bezierCurveTo(c2x, c2y, x, y, x, y);
+  // clipCanvasContext.bezierCurveTo(x, y, c1x, c1y, points[0][0], points[0][1]);
+
   clipCanvasContext.closePath();
-  // clipCanvasContext.fill();
   clipCanvasContext.clip();
   clipCanvasContext.drawImage(videoInput, 0, 0, width, height);
   clipCanvasContext.restore();
