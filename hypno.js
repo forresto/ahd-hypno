@@ -127,9 +127,8 @@ function drawPoint(canvasContext, point, points) {
   canvasContext.arc(x, y, 2, 0, Math.PI*2, true);
   canvasContext.closePath();
   canvasContext.stroke();
-  if(videoInput.currentTime%1<0.1){
+
   eyes.push(new Eye(x,y,2));
-  }
 }
 
 function Eye(x,y,size)  {
@@ -137,11 +136,11 @@ function Eye(x,y,size)  {
     this.x=x;
     this.y=y;
     this.c = Math.random()*360;
-    this.death = 50;
+    this.death = 15;
     this.draw = function(){
         cc.beginPath();
         cc.arc(this.x, this.y, this.size, 0, Math.PI*2, true);
-        cc.lineWidth=5;
+        cc.lineWidth=3;
         cc.strokeStyle="hsla("+this.c+",100%,50%,"+ ((this.death-this.size)/this.death)+")";
         cc.closePath();
         cc.stroke();
