@@ -13,6 +13,13 @@ videoInput.height = height;
 var canvasOutput = document.getElementById('canvas');
 var cc = canvasOutput.getContext('2d');
 
+// Canvas to clip face
+var clipCanvas = document.createElement('canvas');
+clipCanvas.width = width;
+clipCanvas.height = height;
+clipCanvasContext = clipCanvas.getContext('2d');
+
+
 // Mirror output
 cc.translate(width, 0);
 cc.scale(-1, 1);
@@ -103,7 +110,7 @@ var drawPath = function(canvasContext, path, points) {
     x = point[0];
     y = point[1];
 
-    if (i == 0) {
+    if (p === 0) {
       canvasContext.moveTo(x,y);
     } else {
       canvasContext.lineTo(x,y);
@@ -158,20 +165,36 @@ function Eye(x,y,size)  {
     }
 }
 
-var clippingCircle = function(cc){
-  var x = canvas.width / 2;
-  var y = canvas.height / 2;
-  var radius = canvas.height/2.7;
-  var startAngle = 0;
-  var endAngle = 2 * Math.PI;
-  var counterClockwise = false;
-  cc.beginPath();
-  cc.arc(x, y, radius, startAngle, endAngle, counterClockwise);
-  cc.lineWidth = 50;
-  cc.clip();
+var clipFace = function(points){
+  clipCanvasContext.save();
+  clipCanvasContext.clearRect(0,0,width,height);
+  var path = paths[0];
+
+  clipCanvasContext.beginPath();
+  for (var p = 0; p < path.length; p++) {
+    var point = points[ path[p] ];
+    if (!point) {
+      return;
+    }
+    x = point[0];
+    y = point[1];
+    if (p === 0) {
+      clipCanvasContext.moveTo(x,y);
+    } else {
+      clipCanvasContext.lineTo(x,y);
+    }
+  }
+  clipCanvasContext.closePath();
+  // clipCanvasContext.fill();
+  clipCanvasContext.clip();
+  clipCanvasContext.drawImage(videoInput, 0, 0, width, height);
+  clipCanvasContext.restore();
+
+  // Copy clipped to main
+  cc.drawImage(clipCanvas, 0, 0, width, height);
 }
 
-var backgroundPattern = function(cc,colors, rotation){
+var backgroundPattern = function(cc, colors, rotation){
   //circle
   var x = canvas.width / 2;
   var y = canvas.height / 2;
@@ -214,32 +237,31 @@ var backgroundPattern = function(cc,colors, rotation){
   cc.restore();
 }
 
+<<<<<<< HEAD
 
 // Keep track between frames
-var lastVidTime = 0;
-
+var vidTime = 0;
 var points = [];
 
 function drawLoop() {
   requestAnimationFrame(drawLoop);
 
+  // Time since video started
+  vidTime = videoInput.currentTime;
+
   // Background burst
-  var base = (videoInput.currentTime%1000)/10;
+  var base = (vidTime%1000)/10;
   backgroundPattern(cc,['yellow','magenta'], base);
 
-  // Draw mirrored canvas to main canvas
-  cc.save();
-  clippingCircle(cc);
-  cc.drawImage(videoInput, 0, 0, width, height);
-  cc.restore();
-
-  // Fade out
-  // cc.fillStyle = "rgba(0,0,0,0.01)";
-  // cc.fillRect(0, 0, width, height);
-
+  // Get points
   points = ctracker.getCurrentPosition();
+
+  // Draw clipped mirrored face to main canvas
+  clipFace(points);
+
+  // Draw face lines
   cc.strokeStyle = "hsl(60,100%,50%)";
-  cc.lineWidth = 1;
+  cc.lineWidth = 2;
   hypnoFace(cc, points);
 
   //crazy eye patterns
