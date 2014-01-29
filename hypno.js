@@ -19,10 +19,42 @@ clipCanvas.width = width;
 clipCanvas.height = height;
 clipCanvasContext = clipCanvas.getContext('2d');
 
-
 // Mirror output
 cc.translate(width, 0);
 cc.scale(-1, 1);
+
+
+
+
+// Seriously filter
+var seriously, // the main object that holds the entire composition
+    seriouslyIn, // a wrapper object for our source image
+    seriouslyHue,
+    seriouslyOut,
+    seriouslyTarget; // a wrapper object for our target canvas
+
+seriously = new Seriously();
+
+// Create a source object by passing a CSS query string.
+seriouslyIn = seriously.source(videoInput);
+
+seriouslyHue = seriously.effect('hue-saturation');
+
+// now do the same for the target canvas
+seriouslyOut = document.createElement('canvas');
+seriouslyOut.width = width;
+seriouslyOut.height = height;
+seriouslyTarget = seriously.target(seriouslyOut);
+
+// Connect graph
+seriouslyHue.source = seriouslyIn;
+seriouslyTarget.source = seriouslyHue;
+seriously.go();
+
+
+
+
+
 
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
@@ -214,7 +246,7 @@ var clipFace = function(points){
 
   clipCanvasContext.closePath();
   clipCanvasContext.clip();
-  clipCanvasContext.drawImage(videoInput, 0, 0, width, height);
+  clipCanvasContext.drawImage(seriouslyOut, 0, 0, width, height);
   clipCanvasContext.restore();
 
   // Copy clipped to main
@@ -267,6 +299,7 @@ var backgroundPattern = function(cc, colors, rotation){
 
 // Keep track between frames
 var vidTime = 0;
+var colorShift = 0;
 var points = [];
 
 function drawLoop() {
@@ -275,12 +308,24 @@ function drawLoop() {
   // Time since video started
   vidTime = videoInput.currentTime;
 
-  // Background burst
-  var base = (vidTime%1000)/10;
-  backgroundPattern(cc,['yellow','magenta'], base);
-
   // Get points
   points = ctracker.getCurrentPosition();
+  if (!points) {
+    // No faces detected
+    cc.clearRect(0, 0, width, height);
+    colorShift = Math.random() * 360;
+    return;
+  }
+
+  // Color shift
+  var color = (vidTime + colorShift) % 360;
+  seriouslyHue.hue = color/360 * 2 - 1;
+
+  // Background burst
+  var base = (vidTime%1000)/10;
+  var bgColor1 = "hsl("+color+",100%, 50%)";
+  var bgColor2 = "hsl("+color+",50%, 50%)";
+  backgroundPattern(cc,[bgColor1,bgColor2], base);
 
   // Draw clipped mirrored face to main canvas
   clipFace(points);
