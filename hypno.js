@@ -1,6 +1,9 @@
 var width = 640;
 var height = 480;
 
+
+var eyes= [];
+
 // Will connect to cam
 var videoInput = document.createElement('video');
 videoInput.width = width;
@@ -124,11 +127,33 @@ function drawPoint(canvasContext, point, points) {
   canvasContext.arc(x, y, 2, 0, Math.PI*2, true);
   canvasContext.closePath();
   canvasContext.stroke();
+  if(videoInput.currentTime%1<0.1){
+  eyes.push(new Eye(x,y,2));
+  }
 }
 
-
-
-
+function Eye(x,y,size)  {
+    this.size=2;
+    this.x=x;
+    this.y=y;
+    this.c = Math.random()*360;
+    this.death = 50;
+    this.draw = function(){
+        cc.beginPath();
+        cc.arc(this.x, this.y, this.size, 0, Math.PI*2, true);
+        cc.lineWidth=5;
+        cc.strokeStyle="hsla("+this.c+",100%,50%,"+ ((this.death-this.size)/this.death)+")";
+        cc.closePath();
+        cc.stroke();
+    }
+    this.update = function(){
+      this.size+=1;
+      if(this.size>this.death){
+        var index = eyes.indexOf(this);
+        eyes.splice(index,1);
+      }
+    }
+}
 
 var clippingCircle = function(cc){
   var x = canvas.width / 2;
@@ -208,6 +233,11 @@ function drawLoop() {
   cc.strokeStyle = "hsl(60,100%,50%)";
   cc.lineWidth = 1;
   hypnoFace(cc, points);
+
+  for(var i in eyes){
+    eyes[i].draw();
+    eyes[i].update();
+  }
 
 }
 drawLoop();
