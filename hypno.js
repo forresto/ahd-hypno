@@ -4,6 +4,7 @@ var height = 480;
 
 var eyes= [];
 var images = [];
+var img_threshold = 0.25;
 
 // Will connect to cam
 var videoInput = document.createElement('video');
@@ -129,7 +130,9 @@ function drawPoint(canvasContext, point, points) {
   canvasContext.closePath();
   canvasContext.stroke();
 
-  eyes.push(new Eye(x,y,2));
+  if(videoInput.currentTime%1<0.1){
+    eyes.push(new Eye(x,y,2));
+  }
 }
 
 function Eye(x,y,size)  {
@@ -142,12 +145,12 @@ function Eye(x,y,size)  {
         cc.beginPath();
         cc.arc(this.x, this.y, this.size, 0, Math.PI*2, true);
         cc.lineWidth=3;
-        cc.strokeStyle="hsla("+this.c+",100%,50%,"+ ((this.death-this.size)/this.death)+")";
+        cc.strokeStyle="hsla("+this.c+",100%,50%,"+ (0.2+(this.death-this.size)/this.death)+")";
         cc.closePath();
         cc.stroke();
     }
     this.update = function(){
-      this.size+=1;
+      this.size+=0.3;
       if(this.size>this.death){
         var index = eyes.indexOf(this);
         eyes.splice(index,1);
@@ -172,6 +175,11 @@ var backgroundPattern = function(cc,colors, rotation){
   //circle
   var x = canvas.width / 2;
   var y = canvas.height / 2;
+
+  if(points[62]){
+   x = points[62][0];
+   y = points[62][1];
+  }
 
   var radius = canvas.height/2.7;
   var startAngle = 0;
@@ -247,11 +255,11 @@ var img;
 
 //save frame if above score
 setInterval(function(){
-  if(ctracker.getScore()>0.50){
+  if(ctracker.getScore()>img_threshold){
     img = new Image();
     img.src = canvas.toDataURL();
     img.style.width="20%";
-    $('body').append(img);
+    $('body').prepend(img);
     var $imgs = $('img');
     var lastImage = $imgs[$imgs.length-1];
     if($(lastImage).offset()['top']>$(window).height()){
