@@ -4,7 +4,7 @@ var height = 480;
 
 var eyes= [];
 var images = [];
-var img_threshold = 0.25;
+var img_threshold = 0.20;
 
 // Will connect to cam
 var videoInput = document.createElement('video');
@@ -89,7 +89,8 @@ var hypnoFace = function (cc, points) {
       cc.strokeStyle = "hsl("+Math.random()*360+",100%,50%)";
       drawPoint(cc, paths[i], points);
     } else {
-      cc.strokeStyle = "hsl(120,100%,50%)";
+      cc.lineWidth = 2;
+      cc.strokeStyle = "hsl(120,0%,100%)";
       drawPath(cc, paths[i], points);
     }
   }
@@ -138,23 +139,24 @@ function drawPoint(canvasContext, point, points) {
   canvasContext.stroke();
 
   if(videoInput.currentTime%1<0.1){
-    eyes.push(new Eye(x,y,2));
+    eyes.push(new Eye(point,2));
   }
 }
 
-function Eye(x,y,size)  {
+function Eye(pointIndex,size)  {
     this.size=2;
-    this.x=x;
-    this.y=y;
+    this.index=pointIndex;
     this.c = Math.random()*360;
     this.death = 15;
     this.draw = function(){
+        if(points){
         cc.beginPath();
-        cc.arc(this.x, this.y, this.size, 0, Math.PI*2, true);
-        cc.lineWidth=3;
-        cc.strokeStyle="hsla("+this.c+",100%,50%,"+ (0.2+(this.death-this.size)/this.death)+")";
+        cc.arc(points[this.index][0], points[this.index][1], this.size, 0, Math.PI*2, true);
+        cc.lineWidth=4;
+        cc.strokeStyle="hsla("+this.c+",100%,50%,1)";
         cc.closePath();
         cc.stroke();
+        }
     }
     this.update = function(){
       this.size+=0.3;
@@ -262,8 +264,8 @@ var backgroundPattern = function(cc, colors, rotation){
   cc.restore();
 }
 
+
 // Keep track between frames
-var base;
 var vidTime = 0;
 var points = [];
 
@@ -274,7 +276,7 @@ function drawLoop() {
   vidTime = videoInput.currentTime;
 
   // Background burst
-  base = (vidTime%1000)/10;
+  var base = (vidTime%1000)/10;
   backgroundPattern(cc,['yellow','magenta'], base);
 
   // Get points
@@ -294,23 +296,20 @@ function drawLoop() {
     eyes[i].update();
   }
 
-
 }
 drawLoop();
 
-var img;
-
 //save frame if above score
 setInterval(function(){
-  if(ctracker.getScore()>img_threshold){
-    img = new Image();
+  if(points){
+    var img = new Image();
     img.src = canvas.toDataURL();
     img.style.width="20%";
     $('body').prepend(img);
     var $imgs = $('img');
     var lastImage = $imgs[$imgs.length-1];
     if($(lastImage).offset()['top']>$(window).height()){
-      $('img')[0].remove();
+        $(lastImage).remove();
     }
   }
 },1000);
