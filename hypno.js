@@ -89,7 +89,8 @@ var hypnoFace = function (cc, points) {
       cc.strokeStyle = "hsl("+Math.random()*360+",100%,50%)";
       drawPoint(cc, paths[i], points);
     } else {
-      cc.strokeStyle = "hsl(120,100%,50%)";
+      cc.lineWidth = 5;
+      cc.strokeStyle = "hsl(120,0%,100%)";
       drawPath(cc, paths[i], points);
     }
   }
@@ -151,8 +152,8 @@ function Eye(pointIndex,size)  {
         if(points){
         cc.beginPath();
         cc.arc(points[this.index][0], points[this.index][1], this.size, 0, Math.PI*2, true);
-        cc.lineWidth=3;
-        cc.strokeStyle="hsla("+this.c+",100%,50%,"+ (0.2+(this.death-this.size)/this.death)+")";
+        cc.lineWidth=4;
+        cc.strokeStyle="hsla("+this.c+",100%,50%,1)";
         cc.closePath();
         cc.stroke();
         }
