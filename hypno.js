@@ -130,7 +130,7 @@ function drawPoint(canvasContext, point, points) {
 
 
 
-var clippingCircle = function(){
+var clippingCircle = function(cc){
   var x = canvas.width / 2;
   var y = canvas.height / 2;
   var radius = canvas.height/2.7;
@@ -143,7 +143,7 @@ var clippingCircle = function(){
   cc.clip();
 }
 
-var backgroundPattern = function(colors){
+var backgroundPattern = function(cc,colors, rotation){
   //circle
   var x = canvas.width / 2;
   var y = canvas.height / 2;
@@ -162,10 +162,10 @@ var backgroundPattern = function(colors){
   var increment = Math.PI*2 / 24;//84
   var length = canvas.width;
 
-  base = Math.floor(videoInput.currentTime%100);
+
   cc.save();
   cc.translate(x,y);
-  cc.rotate(base);
+  cc.rotate(rotation);
   var colIndex=0;
   for(var angle = 0; angle < Math.PI*2; angle+=increment){
     cc.beginPath();
@@ -187,15 +187,17 @@ var lastVidTime = 0;
 var points = [];
 
 function drawLoop() {
-
   requestAnimationFrame(drawLoop);
 
   // Background burst
-  backgroundPattern(['yellow','magenta']);
+  base = (videoInput.currentTime%1000)/10;
+  backgroundPattern(cc,['yellow','magenta'], base);
 
   // Draw mirrored canvas to main canvas
-  clippingCircle();
+  cc.save();
+  clippingCircle(cc);
   cc.drawImage(videoInput, 0, 0, width, height);
+  cc.restore();
 
   // Fade out
   // cc.fillStyle = "rgba(0,0,0,0.01)";
