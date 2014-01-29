@@ -4,7 +4,7 @@ var height = 480;
 
 var eyes= [];
 var images = [];
-var img_threshold = 0.25;
+var img_threshold = 0.20;
 
 // Will connect to cam
 var videoInput = document.createElement('video');
@@ -275,7 +275,7 @@ drawLoop();
 
 //save frame if above score
 setInterval(function(){
-  if(ctracker.getScore()>img_threshold){
+  if(points){
     var img = new Image();
     img.src = canvas.toDataURL();
     img.style.width="20%";
@@ -283,7 +283,7 @@ setInterval(function(){
     var $imgs = $('img');
     var lastImage = $imgs[$imgs.length-1];
     if($(lastImage).offset()['top']>$(window).height()){
-      $('img')[0].remove();
+        $(lastImage).remove();
     }
   }
 },1000);
