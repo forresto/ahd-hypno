@@ -89,7 +89,7 @@ var hypnoFace = function (cc, points) {
       cc.strokeStyle = "hsl("+Math.random()*360+",100%,50%)";
       drawPoint(cc, paths[i], points);
     } else {
-      cc.lineWidth = 5;
+      cc.lineWidth = 2;
       cc.strokeStyle = "hsl(120,0%,100%)";
       drawPath(cc, paths[i], points);
     }
