@@ -199,9 +199,9 @@ var backgroundPattern = function(cc, colors, rotation){
   var x = canvas.width / 2;
   var y = canvas.height / 2;
 
-  if(points[62]){
-   x = points[62][0];
-   y = points[62][1];
+  if(points[33]){
+   x = points[33][0];
+   y = points[33][1];
   }
 
   var radius = canvas.height/2.7;
