@@ -214,16 +214,17 @@ var backgroundPattern = function(cc,colors, rotation){
   cc.restore();
 }
 
-var base;
+
 // Keep track between frames
 var lastVidTime = 0;
+
 var points = [];
 
 function drawLoop() {
   requestAnimationFrame(drawLoop);
 
   // Background burst
-  base = (videoInput.currentTime%1000)/10;
+  var base = (videoInput.currentTime%1000)/10;
   backgroundPattern(cc,['yellow','magenta'], base);
 
   // Draw mirrored canvas to main canvas
@@ -247,16 +248,13 @@ function drawLoop() {
     eyes[i].update();
   }
 
-
 }
 drawLoop();
-
-var img;
 
 //save frame if above score
 setInterval(function(){
   if(ctracker.getScore()>img_threshold){
-    img = new Image();
+    var img = new Image();
     img.src = canvas.toDataURL();
     img.style.width="20%";
     $('body').prepend(img);
